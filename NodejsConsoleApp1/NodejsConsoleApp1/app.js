@@ -29,8 +29,22 @@ var xmlInfo = {
             dateFormat: "*",
             names: ['Version','TempUnit','Model','FilterSign','ShortName','DateFormat']
         },
-        controlGroup: {areaGroupList: "", names ['AreaGroupList']},
-        //SetbackControl is for status requests
+        controlGroup: {
+            command: 'getRequest',
+            areaGroupList: "",
+            areaList: "",
+            mnetGroupList: "",
+            mnetList: "",
+            ddcInfoList: "",
+            viewInfoList: "",
+            mcList: "",
+            mcNameList: "",
+            names: ['AreaGroupList','AreaList','MnetGroupList','MnetList','DdcInfoList','ViewInfoList','McList','McNameList']
+        },
+        functionControl: {
+            functionList: "",
+            names: ['FunctionList']
+        },
         setbackControl: {
             command: 'getRequest',
             group: groups, //needs to be changed to be more specific
@@ -63,7 +77,7 @@ var xmlInfo = {
             names: ['Group','Drive','Mode','SetTemp','AirDirection','FanSpeed','RemoCon','DriveItem','ModeItem','SetTempItem','FilterItem']
         },
         // names are for xml creation
-        names: ['SystemData','ControlGroup','SetbackControl','Mnet',]
+        names: ['SystemData','ControlGroup','SetbackControl','Mnet','FunctionControl']
     },
     // names are for creating the XML
     names: ['Command','DatabaseManager']
@@ -71,7 +85,7 @@ var xmlInfo = {
 
 // fetch data for use
 
-// code below is testing purposes only
+// code below is for testing purposes only
 var ctl = {
     command: 'setRequest',
     group: '3',
