@@ -19,6 +19,16 @@ var createXml = function (object) {
 var xmlInfo = {
     command: ['getRequest','setRequest'],
     databaseManager: {
+        systemData: {
+            version: "*",
+            tempUnit: "*",
+            model: "*",
+            filterSign: "*",
+            shortName: "*",
+            dateFormat: "*",
+            names: ['Version','TempUnit','Model','FilterSign','ShortName','DateFormat']
+        },
+        controlGroup: {areaGroupList: "", names ['AreaGroupList']},
         //SetbackControl is for status requests
         setbackControl {
             group: groups, //needs to be changed to be more specific
@@ -50,7 +60,7 @@ var xmlInfo = {
             names: ['Group','Drive','Mode','SetTemp','AirDirection','FanSpeed','RemoCon','DriveItem','ModeItem','SetTempItem','FilterItem']
         },
         // names are for xml creation
-        names: ['Mnet']
+        names: ['SystemData','ControlGroup','SetbackControl','Mnet',]
     },
     // names are for creating the XML
     names: ['Command','DatabaseManager']
