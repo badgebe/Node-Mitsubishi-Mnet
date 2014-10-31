@@ -12,15 +12,11 @@ var controllerPort = clargs[3];
 var groups // var for groups - used in xmlInfo
 var tempSetRaw //raw temp setting converted from fahrenheit - used in xmlInfo
 
-var createXml = function (object) {
-    //create the XML for POST
-};
-
 var xmlInfo = {
     command: ['getRequest','setRequest'],
     databaseManager: {
         systemData: {
-            command: 'getRequest',
+            command: xmlInfo.command[0],
             version: "*",
             tempUnit: "*",
             model: "*",
@@ -30,7 +26,7 @@ var xmlInfo = {
             names: ['Version','TempUnit','Model','FilterSign','ShortName','DateFormat']
         },
         controlGroup: {
-            command: 'getRequest',
+            command: xmlInfo.command[0],
             areaGroupList: "",
             areaList: "",
             mnetGroupList: "",
@@ -42,11 +38,31 @@ var xmlInfo = {
             names: ['AreaGroupList','AreaList','MnetGroupList','MnetList','DdcInfoList','ViewInfoList','McList','McNameList']
         },
         functionControl: {
+            command: xmlInfo.command[0],
             functionList: "",
             names: ['FunctionList']
         },
-        setbackControl: {
-            command: 'getRequest',
+        userAuth: {
+            command: xmlInfo.command[0],
+            user: "", // Username
+            password: "", // _hashed_ password
+            passwordKey: "",
+            html: '*',
+            htmlKey: '*',
+            availableGroup: '*',
+            userCategory: '*',
+            names: ['User','Password','PasswordKey','Html','HtmlKey','AvailableGroup','UserCategory']
+        },
+        mnetA: {
+            command: xmlInfo.command[0],
+            group: groups, //specify
+            bulk: "*",
+            energyControl: "*",
+            racSW: "*",
+            names: ['Group','Bulk','EnergyControl','RacSW']
+        },
+        setbackControlA: {
+            command: xmlInfo.command[0],
             group: groups, //needs to be changed to be more specific
             state: "*",
             hold: "*",
@@ -59,15 +75,14 @@ var xmlInfo = {
             preSetTempItem: "*",
             names: ['Group','State','Hold','SetTempMax','SetTempMin','PreMode','PreSetTemp','PreDriveItem','PreModeItem','PreSetTempItem']
         },
-        //mnet is for controlling
-        mnet: {
-            command: 'getRequest',
+        mnetB: {
+            command: xmlInfo.command[1],
             // Params need to be filled in
             group: groups, // needs to be changed to be more specific
             drive: ['OFF','ON'],
             mode: ['COOL','DRY','FAN','HEAT'],
             setTemp: toString(tempSetRaw),
-            airDirection: ['MID0'],
+            airDirection: ['MID0','VERTICAL'],
             fanSpeed: ['AUTO','MID2','MID1','HIGH'],
             remoCon: ['PROHIBIT','PERMIT'],
             driveItem: ['CHK_OFF','CHK_ON'],
@@ -75,6 +90,14 @@ var xmlInfo = {
             setTempItem: ['CHK_OFF','CHK_ON'],
             filterItem: ['CHK_OFF','CHK_ON'],
             names: ['Group','Drive','Mode','SetTemp','AirDirection','FanSpeed','RemoCon','DriveItem','ModeItem','SetTempItem','FilterItem']
+        },
+        setbackControlB: {
+            command: xmlInfo.command[1],
+            group: groups, // ...
+            state: ['ON'],
+            setTempMax: "", // fill in pos. toString()
+            setTempMin: "", // fill in pos. toString()
+            names: ['Group','State','SetTempMax','SetTempMin']
         },
         // names are for xml creation
         names: ['SystemData','ControlGroup','SetbackControl','Mnet','FunctionControl']
@@ -84,6 +107,10 @@ var xmlInfo = {
 };
 
 // fetch data for use
+
+function createXml(object) {
+    //create the XML for POST
+};
 
 // code below is for testing purposes only
 var ctl = {
