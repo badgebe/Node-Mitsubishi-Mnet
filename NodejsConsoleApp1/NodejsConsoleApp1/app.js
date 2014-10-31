@@ -1,19 +1,25 @@
 ﻿var http = require('http');
 
+//take args from command line
 var clargs = process.argv;
-
+//first arg is Host
 var controllerAddress = clargs[2];
-
+//second arg is port
 var controllerPort = clargs[3];
-var groups 
-var tempSetRaw
-var createXml = function (object) {
 
+var groups // var for groups
+var tempSetRaw //raw temp setting converted from fahrenheit
+
+var createXml = function (object) {
+    //create the XML for POST
 }
+
 var xmlInfo = {
     command: ['getRequest','setRequest'],
     databaseManager: {
-
+        //xml attr SBCtl
+        //SetbackControl is for status requests
+        //mnet is controls
         mnet: {
             group: groups,
             drive: ['OFF','ON'],
@@ -29,9 +35,10 @@ var xmlInfo = {
             names: ['Group','Drive','Mode','SetTemp','AirDirection','FanSpeed','RemoCon','DriveItem','ModeItem','SetTempItem','FilterItem']
         }
     },
-    optNames: ['Command','DatabaseManager']
+    // names are for creating the XML
+    names: ['Command','DatabaseManager']
 };
-
+// code below is testing purposes only
 var ctl = {
     command: 'setRequest',
     group: '3',
