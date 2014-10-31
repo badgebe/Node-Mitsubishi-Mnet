@@ -12,30 +12,35 @@ var controllerPort = clargs[3];
 var groups // var for groups - used in xmlInfo
 var tempSetRaw //raw temp setting converted from fahrenheit - used in xmlInfo
 
+function xmlPiece(xmlCommand, name, value, close) {
+    this.command = xmlCommand;
+    this.name = name;
+    this.value = value;
+    this.close = close;
+};
+var command = ['getRequest','setRequest'];
 var xmlInfo = {
-    command: ['getRequest','setRequest'],
     databaseManager: {
         systemData: {
             //command: xmlInfo.command[0],
-            version: "*",
-            tempUnit: "*",
-            model: "*",
-            filterSign: "*",
-            shortName: "*",
-            dateFormat: "*",
-            names: ['Version','TempUnit','Model','FilterSign','ShortName','DateFormat']
+            version: new xmlPiece(command[0],'Version',"*",false),
+            tempUnit: new xmlPiece(command[0],'TempUnit',"*", false),
+            model: new xmlPiece(command[0],'Model',"*", false),
+            filterSign: new xmlPiece(command[0],'FilterSign',"*", false),
+            shortName: new xmlPiece(command[0],'ShortName',"*", false),
+            dateFormat: new xmlPiece(command[0],'DateFormat',"*", false)
         },
         controlGroup: {
             //command: xmlInfo.command[0],
-            areaGroupList: "",
-            areaList: "",
-            mnetGroupList: "",
-            mnetList: "",
+            areaGroupList: new xmlPiece(command[0],'AreaGroupList',"", true),
+            areaList: new xmlPiece(command[0],'AreaList',"", true),
+            mnetGroupList: new xmlPiece(command[0],'MnetGroupList',"", true),
+            mnetList: new xmlPiece(command[0],'MnetList',"", true),
             ddcInfoList: "",
             viewInfoList: "",
             mcList: "",
             mcNameList: "",
-            names: ['AreaGroupList','AreaList','MnetGroupList','MnetList','DdcInfoList','ViewInfoList','McList','McNameList']
+            names: ['DdcInfoList','ViewInfoList','McList','McNameList']
         },
         functionControl: {
             //command: xmlInfo.command[0],
@@ -106,44 +111,32 @@ var xmlInfo = {
     names: ['Command','DatabaseManager']
 };
 
-// fetch data for use
-
-function createXml(command,element,close,attrObjArray) {
+function createXml(command, element, close, attrObjArray) {
     //create the XML for POST
-    this.create = function () {
+    this.xml = function () {
         var xmlOutput = '<?xml version="1.0" encoding="UTF-8"?>' + '<Packet>' + '<Command>' + command + '</Command>' + '<DatabaseManager>' + '<' + element;
-        if (close) { xmlOutput = xmlOutput + '>' + '<' };
+        if (close) { xmlOutput = xmlOutput + '>' + '<' }        ;
         for (var i = 0; i < attrObjArray.length; i++) {
-            xmlOutput = xmlOutput + ' ' + attrObjArray[i].name;
             if (close) {
-                xmlOutput = xmlOutput + '/>' + '<' + element + '/>';
+                xmlOutput = xmlOutput + attrObjArray[i].name + ' />' + '</' + element + '>';
             } else {
-                xmlOutput = xmlOutput + '=' + '"' + attrObjArray[i].value + '"' + ' ' + '/>';
-            };
+                xmlOutput = xmlOutput + ' ' + attrObjArray[i].name + '=' + '"' + attrObjArray[i].value + '"' + ' />';
+            }            ;
 
         }        ;
         xmlOutput = xmlOutput + '</DatabaseManager>' + '</Packet>';
         return xmlOutput;
     }
 };
-
+var xmlDbm = xmlInfo.databaseManager
+var xmlSysData = xmlDbm.systemData
+var xmlCtlGrp = xmlDbm.controlGroup
+// fetch data for use
+var getMnetGroupList = new createXml (xmlCtlGrp.mnetGroupList.command, "ControlGroup",xmlCtlGrp.mnetGroupList.close, [ { name: xmlCtlGrp.mnetGroupList.name, value: xmlCtlGrp.mnetGroupList.value}])
 // code below is for testing purposes only
-var ctl = {
-    command: 'setRequest',
-    group: '3',
-    drive: 'ON',
-    mode: 'HEAT',
-    airDirection: 'MID0',
-    fanSpeed: 'MID1',
-    remoCon: 'PROHIBIT',
-    driveItem: 'CHK_ON',
-    modeItem: 'CHK_ON',
-    setTempItem: 'CHK_ON',
-    filterItem: 'CHK_ON',
-    setTemp: '22.5',
-};
-
-
+var testXml = getMnetGroupList.xml()
+console.log(testXml)
+/*
 var body = '<?xml version="1.0" encoding="UTF-8"?>' +
             '<Packet>' +
             '<Command>' +
@@ -154,6 +147,8 @@ var body = '<?xml version="1.0" encoding="UTF-8"?>' +
             '</DatabaseManager>' +
             '</Packet>';
 console.log(body)
+*/
+var body = testXml
 var postRequest = {
     host: controllerAddress,
     path: "/servlet/MIMEReceiveServlet",
@@ -181,3 +176,4 @@ var req = http.request(postRequest, function (res) {
 req.write(body);
 req.end();
 console.log(buffer);
+ 
