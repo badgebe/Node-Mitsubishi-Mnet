@@ -19,7 +19,7 @@ var xmlInfo = {
     databaseManager: {
         //xml attr SBCtl
         //SetbackControl is for status requests
-        //mnet is controls
+        //mnet is for controlling
         mnet: {
             group: groups,
             drive: ['OFF','ON'],
@@ -33,7 +33,9 @@ var xmlInfo = {
             setTempItem: ['CHK_OFF','CHK_ON'],
             filterItem: ['CHK_OFF','CHK_ON'],
             names: ['Group','Drive','Mode','SetTemp','AirDirection','FanSpeed','RemoCon','DriveItem','ModeItem','SetTempItem','FilterItem']
-        }
+        },
+        // names are for xml creation
+        names: ['Mnet']
     },
     // names are for creating the XML
     names: ['Command','DatabaseManager']
