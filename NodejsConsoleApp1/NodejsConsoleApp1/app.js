@@ -14,13 +14,13 @@ var tempSetRaw //raw temp setting converted from fahrenheit - used in xmlInfo
 
 var createXml = function (object) {
     //create the XML for POST
-}
+};
 
 var xmlInfo = {
     command: ['getRequest','setRequest'],
     databaseManager: {
         systemData: {
-            command: 'getRequest'
+            command: 'getRequest',
             version: "*",
             tempUnit: "*",
             model: "*",
@@ -31,8 +31,8 @@ var xmlInfo = {
         },
         controlGroup: {areaGroupList: "", names ['AreaGroupList']},
         //SetbackControl is for status requests
-        setbackControl {
-            command: 'getRequest'
+        setbackControl: {
+            command: 'getRequest',
             group: groups, //needs to be changed to be more specific
             state: "*",
             hold: "*",
@@ -43,11 +43,11 @@ var xmlInfo = {
             preDriveItem: "*",
             preModeItem: "*",
             preSetTempItem: "*",
-            names['Group','State','Hold','SetTempMax','SetTempMin','PreMode','PreSetTemp','PreDriveItem','PreModeItem','PreSetTempItem']
+            names: ['Group','State','Hold','SetTempMax','SetTempMin','PreMode','PreSetTemp','PreDriveItem','PreModeItem','PreSetTempItem']
         },
         //mnet is for controlling
         mnet: {
-            command: 'getRequest'
+            command: 'getRequest',
             // Params need to be filled in
             group: groups, // needs to be changed to be more specific
             drive: ['OFF','ON'],
