@@ -12,23 +12,51 @@ var controllerPort = clargs[3];
 var groups // var for groups - used in xmlInfo
 var tempSetRaw //raw temp setting converted from fahrenheit - used in xmlInfo
 
-function xmlPiece(xmlCommand, name, value, close) {
+var xmlCommandOpt = ['getRequest','setRequest'];
+
+function xmlPiece(xmlCommand, parent, name, values, close) {
     this.command = xmlCommand;
     this.name = name;
-    this.value = value;
+    this.values = values;
     this.close = close;
+    this.parent = parent;
 };
-var command = ['getRequest','setRequest'];
+
+function xmlPieceA(parent, name, values, close) {
+    var wp = new xmlPiece(xmlCommandOpt[0], parent, name, values, close)
+    this.commmand = wp.command;
+    this.name = wp.name;
+    this.values = wp.values;
+    this.close = wp.close;
+    this.parent = wp.parent;
+};
+
+function xmlPieceAp(parent) {
+    this.p =(function f(close) {
+        this.p = (function xmlPieceAA(name, value) {
+            var wp = new xmlPieceA(parent, name, values, close)
+            this.commmand = wp.command;
+            this.name = wp.name;
+            this.values = wp.values;
+            this.close = wp.close;
+            this.parent = wp.parent;
+        });
+    });
+};
+var SystemData = new xmlPieceAp("SystemData").p;
+var SystemDataA = new SystemData(false).p;
+
+
 var xmlInfo = {
     databaseManager: {
         systemData: {
             //command: xmlInfo.command[0],
-            version: new xmlPiece(command[0],'Version',"*",false),
-            tempUnit: new xmlPiece(command[0],'TempUnit',"*", false),
-            model: new xmlPiece(command[0],'Model',"*", false),
-            filterSign: new xmlPiece(command[0],'FilterSign',"*", false),
-            shortName: new xmlPiece(command[0],'ShortName',"*", false),
-            dateFormat: new xmlPiece(command[0],'DateFormat',"*", false)
+            version: new SystemDataA('Version',"*"),
+            tempUnit: new SystemDataA('TempUnit',"*"),
+            model: new SystemDataA('Model',"*"),
+            filterSign: new SystemDataA('FilterSign',"*"),
+            shortName: new SystemDataA('ShortName',"*"),
+            dateFormat: new SystemDataA('DateFormat',"*")
         },
         controlGroup: {
             //command: xmlInfo.command[0],
