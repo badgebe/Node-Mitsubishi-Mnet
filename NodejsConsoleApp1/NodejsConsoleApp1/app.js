@@ -9,8 +9,8 @@ var controllerAddress = clargs[2];
 //second arg is port
 var controllerPort = clargs[3];
 
-var groups // var for groups
-var tempSetRaw //raw temp setting converted from fahrenheit
+var groups // var for groups - used in xmlInfo
+var tempSetRaw //raw temp setting converted from fahrenheit - used in xmlInfo
 
 var createXml = function (object) {
     //create the XML for POST
@@ -20,6 +20,7 @@ var xmlInfo = {
     command: ['getRequest','setRequest'],
     databaseManager: {
         systemData: {
+            command: 'getRequest'
             version: "*",
             tempUnit: "*",
             model: "*",
@@ -31,6 +32,7 @@ var xmlInfo = {
         controlGroup: {areaGroupList: "", names ['AreaGroupList']},
         //SetbackControl is for status requests
         setbackControl {
+            command: 'getRequest'
             group: groups, //needs to be changed to be more specific
             state: "*",
             hold: "*",
@@ -45,6 +47,7 @@ var xmlInfo = {
         },
         //mnet is for controlling
         mnet: {
+            command: 'getRequest'
             // Params need to be filled in
             group: groups, // needs to be changed to be more specific
             drive: ['OFF','ON'],
@@ -65,6 +68,9 @@ var xmlInfo = {
     // names are for creating the XML
     names: ['Command','DatabaseManager']
 };
+
+// fetch data for use
+
 // code below is testing purposes only
 var ctl = {
     command: 'setRequest',
