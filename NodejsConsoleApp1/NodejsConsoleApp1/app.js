@@ -16,7 +16,7 @@ var xmlInfo = {
     command: ['getRequest','setRequest'],
     databaseManager: {
         systemData: {
-            command: xmlInfo.command[0],
+            //command: xmlInfo.command[0],
             version: "*",
             tempUnit: "*",
             model: "*",
@@ -26,7 +26,7 @@ var xmlInfo = {
             names: ['Version','TempUnit','Model','FilterSign','ShortName','DateFormat']
         },
         controlGroup: {
-            command: xmlInfo.command[0],
+            //command: xmlInfo.command[0],
             areaGroupList: "",
             areaList: "",
             mnetGroupList: "",
@@ -38,12 +38,12 @@ var xmlInfo = {
             names: ['AreaGroupList','AreaList','MnetGroupList','MnetList','DdcInfoList','ViewInfoList','McList','McNameList']
         },
         functionControl: {
-            command: xmlInfo.command[0],
+            //command: xmlInfo.command[0],
             functionList: "",
             names: ['FunctionList']
         },
         userAuth: {
-            command: xmlInfo.command[0],
+            //command: xmlInfo.command[0],
             user: "", // Username
             password: "", // _hashed_ password
             passwordKey: "",
@@ -54,7 +54,7 @@ var xmlInfo = {
             names: ['User','Password','PasswordKey','Html','HtmlKey','AvailableGroup','UserCategory']
         },
         mnetA: {
-            command: xmlInfo.command[0],
+            //command: xmlInfo.command[0],
             group: groups, //specify
             bulk: "*",
             energyControl: "*",
@@ -62,7 +62,7 @@ var xmlInfo = {
             names: ['Group','Bulk','EnergyControl','RacSW']
         },
         setbackControlA: {
-            command: xmlInfo.command[0],
+            //command: xmlInfo.command[0],
             group: groups, //needs to be changed to be more specific
             state: "*",
             hold: "*",
@@ -76,7 +76,7 @@ var xmlInfo = {
             names: ['Group','State','Hold','SetTempMax','SetTempMin','PreMode','PreSetTemp','PreDriveItem','PreModeItem','PreSetTempItem']
         },
         mnetB: {
-            command: xmlInfo.command[1],
+            //command: xmlInfo.command[1],
             // Params need to be filled in
             group: groups, // needs to be changed to be more specific
             drive: ['OFF','ON'],
@@ -92,7 +92,7 @@ var xmlInfo = {
             names: ['Group','Drive','Mode','SetTemp','AirDirection','FanSpeed','RemoCon','DriveItem','ModeItem','SetTempItem','FilterItem']
         },
         setbackControlB: {
-            command: xmlInfo.command[1],
+            //command: xmlInfo.command[1],
             group: groups, // ...
             state: ['ON'],
             setTempMax: "", // fill in pos. toString()
@@ -108,8 +108,23 @@ var xmlInfo = {
 
 // fetch data for use
 
-function createXml(object) {
+function createXml(command,element,close,attrObjArray) {
     //create the XML for POST
+    this.create = function () {
+        var xmlOutput = '<?xml version="1.0" encoding="UTF-8"?>' + '<Packet>' + '<Command>' + command + '</Command>' + '<DatabaseManager>' + '<' + element;
+        if (close) { xmlOutput = xmlOutput + '>' + '<' };
+        for (var i = 0; i < attrObjArray.length; i++) {
+            xmlOutput = xmlOutput + ' ' + attrObjArray[i].name;
+            if (close) {
+                xmlOutput = xmlOutput + '/>' + '<' + element + '/>';
+            } else {
+                xmlOutput = xmlOutput + '=' + '"' + attrObjArray[i].value + '"' + ' ' + '/>';
+            };
+
+        }        ;
+        xmlOutput = xmlOutput + '</DatabaseManager>' + '</Packet>';
+        return xmlOutput;
+    }
 };
 
 // code below is for testing purposes only
