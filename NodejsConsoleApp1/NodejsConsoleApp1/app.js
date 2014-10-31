@@ -1,4 +1,6 @@
-﻿var http = require('http');
+﻿// © Copyright 2014, All rights reserved.
+// Don't worry, licencing to follow - just my first piece of public code and I am not sure which licence to use.
+var http = require('http');
 
 //take args from command line
 var clargs = process.argv;
@@ -17,11 +19,24 @@ var createXml = function (object) {
 var xmlInfo = {
     command: ['getRequest','setRequest'],
     databaseManager: {
-        //xml attr SBCtl
         //SetbackControl is for status requests
+        setbackControl {
+            group: groups, //needs to be changed to be more specific
+            state: "*",
+            hold: "*",
+            setTempMax: "*",
+            setTempMin: "*",
+            preMode: "*",
+            preSetTemp: "*",
+            preDriveItem: "*",
+            preModeItem: "*",
+            preSetTempItem: "*",
+            names['Group','State','Hold','SetTempMax','SetTempMin','PreMode','PreSetTemp','PreDriveItem','PreModeItem','PreSetTempItem']
+        },
         //mnet is for controlling
         mnet: {
-            group: groups,
+            // Params need to be filled in
+            group: groups, // needs to be changed to be more specific
             drive: ['OFF','ON'],
             mode: ['COOL','DRY','FAN','HEAT'],
             setTemp: toString(tempSetRaw),
