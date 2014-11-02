@@ -1,5 +1,4 @@
 ﻿// © Copyright 2014
-// Don't worry, licensing to follow - just my first piece of public code and I am not sure which license to use.
 // the current code is licensed under the GPLv3 but future versions may carry a different license
 var http = require('http');
 
@@ -59,7 +58,8 @@ var ControlGroupB = new ControlGroup(true).p2;
 var FunctionControl = new xmlPieceAp('FunctionControl').p;
 var FunctionControlB = new FunctionControl(true).p2;
 
-var xmlInfo = {
+
+var xmlInfo = { 
     databaseManager: {
         systemData: {
             //command: xmlInfo.command[0],
@@ -158,10 +158,11 @@ function createXml(command, element, close, attrObjArray) {
             if (close) {
                 xmlOutput = xmlOutput + attrObjArray[i].name + '/>' + '</' + element + '>';
             } else {
-                xmlOutput = xmlOutput + ' ' + attrObjArray[i].name + '=' + '"' + attrObjArray[i].values + '"' + ' />';
-            }            ;
+                xmlOutput = xmlOutput + ' ' + attrObjArray[i].name + '=' + '"' + attrObjArray[i].values + '"';
+            };
 
         }        ;
+        if (close === false) { xmlOutput = xmlOutput + ' />';};
         xmlOutput = xmlOutput + '</DatabaseManager>' + '</Packet>';
         return xmlOutput;
     }
@@ -193,6 +194,7 @@ var sendXml = function (body) {
     req.write(body);
     req.end();
     console.log(buffer);
+    return buffer
 };
 
 var xmlDbm = xmlInfo.databaseManager
@@ -202,29 +204,86 @@ var xmlCtlGrp = xmlDbm.controlGroup
 function singleCommand(xmlCommand) {
     this.xml = new createXml(xmlCommand.command, xmlCommand.parent , xmlCommand.close, [ { name: xmlCommand.name, values: xmlCommand.values }]).xml;
 };
+var xmlGetSystemData = new createXml(xmlSysData.version.command, xmlSysData.version.parent, xmlSysData.version.close, [xmlSysData.version,xmlSysData.tempUnit,xmlSysData.model,xmlSysData.filterSign,xmlSysData.shortName,xmlSysData.dateFormat]).xml;
+var xmlAreaGroupList = new singleCommand(xmlCtlGrp.areaGroupList).xml;
+var xmlAreaList = new singleCommand(xmlCtlGrp.areaList).xml;
 var xmlGetMnetGroupList = new singleCommand(xmlCtlGrp.mnetGroupList).xml;
 var xmlGetMnetList = new singleCommand(xmlCtlGrp.mnetList).xml;
+var xmlGetDdcInfoList = new singleCommand(xmlCtlGrp.ddcInfoList).xml;
+var xmlGetViewInfoList = new singleCommand(xmlCtlGrp.viewInfoList).xml;
+var xmlGetMcList = new singleCommand(xmlCtlGrp.mcList).xml;
+var xmlGetMcNameList = new singleCommand(xmlCtlGrp.mcNameList).xml;
+
+var xmlParse = function(xmlToParse) {
+    var xmlParseReturnObject = {};
+    var findTag = function () {
+        
+    };
+    for (var i = 0; i < xmlToParse.length; i++) {
+        xmlToParse[i]
+    };
+
+}
+
+var getSystemData = function () {
+    var response = sendXml(xmlGetSystemData());
+    // parse response
+    xmlParse(response);
+};
+
+var getAreaGroupList = function () {
+    var response = sendXml(xmlAreaGroupList())
+    // parse response
+};
+
+var getAreaList = function () {
+    var response = sendXml(xmlAreaList())
+    // parse response
+};
+
+var getMnetGroupList = function () {
+    var response = sendXml(xmlGetMnetGroupList());
+    // parse response
+};
+
+var getMnetList = function () {
+    var response = sendXml(xmlGetMnetList());
+    // parse response
+};
+
+var getDdcInfoList = function () {
+    var response = sendXml(xmlGetDdcInfoList());
+    // parse response
+};
+
+var getViewInfoList = function () {
+    var response = sendXml(xmlGetViewInfoList());
+    // parse response
+};
+
+var getMcList = function () {
+    var response = sendXml(xmlGetMcList());
+    // parse response
+};
+
+var getMcNameList = function () {
+    var response = sendXml(xmlGetMcNameList());
+    // parse response
+};
 // code below is for testing purposes only
-var testXml = getMnetGroupList();
-console.log(testXml);
-/*
-var body = '<?xml version="1.0" encoding="UTF-8"?>' +
-            '<Packet>' +
-            '<Command>' +
-            ctl.command +
-            '</Command>' +
-            '<DatabaseManager>' +
-            '<Mnet Group="' + ctl.group +'" Drive="' + ctl.drive + '" Mode="' + ctl.mode +'" AirDirection="' + ctl.airDirection +'" FanSpeed="' + ctl.fanSpeed + '" RemoCon="' + ctl.remoCon + '" DriveItem="' + ctl.driveItem + '" ModeItem="' + ctl.modeItem + '" SetTempItem="' + ctl.setTempItem + '" FilterItem="' + ctl.filterItem + '" />' +
-            '</DatabaseManager>' +
-            '</Packet>';
-console.log(body)
- */
 
 console.log("Connecting to", controllerAddress + ":" + controllerPort);
 
+// the following functions work but do not return anything yet
+getSystemData();
+getAreaGroupList();
+getAreaList();
+getMnetGroupList();
+getMnetList();
+getDdcInfoList();
+getViewInfoList();
+getMcList();
+getMcNameList();
 
 
-console.log(xmlGetMnetGroupList());
-sendXml(xmlGetMnetGroupList());
-sendXml(xmlGetMnetList());
  // */
