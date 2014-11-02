@@ -1,5 +1,6 @@
-﻿// © Copyright 2014, All rights reserved.
-// Don't worry, licencing to follow - just my first piece of public code and I am not sure which licence to use.
+﻿// © Copyright 2014
+// Don't worry, licensing to follow - just my first piece of public code and I am not sure which license to use.
+// the current code is licensed under the GPLv3 but future versions may carry a different license
 var http = require('http');
 
 //take args from command line
@@ -23,8 +24,8 @@ function xmlPiece(xmlCommand, parent, name, values, close) {
 };
 
 function xmlPieceA(parent, name, values, close) {
-    var wp = new xmlPiece(xmlCommandOpt[0], parent, name, values, close)
-    this.commmand = wp.command;
+    var wp = new xmlPiece('getRequest', parent, name, values, close)
+    this.command = wp.command;
     this.name = wp.name;
     this.values = wp.values;
     this.close = wp.close;
@@ -33,9 +34,17 @@ function xmlPieceA(parent, name, values, close) {
 
 function xmlPieceAp(parent) {
     this.p =(function f(close) {
-        this.p = (function xmlPieceAA(name, value) {
+        this.p = (function xmlPieceAA(name, values) {
             var wp = new xmlPieceA(parent, name, values, close)
-            this.commmand = wp.command;
+            this.command = wp.command;
+            this.name = wp.name;
+            this.values = wp.values;
+            this.close = wp.close;
+            this.parent = wp.parent;
+        });
+        this.p2 = (function xmlPieceAA(name) {
+            var wp = new xmlPieceA(parent, name, "", close)
+            this.command = wp.command;
             this.name = wp.name;
             this.values = wp.values;
             this.close = wp.close;
@@ -45,7 +54,10 @@ function xmlPieceAp(parent) {
 };
 var SystemData = new xmlPieceAp("SystemData").p;
 var SystemDataA = new SystemData(false).p;
-
+var ControlGroup = new xmlPieceAp("ControlGroup").p;
+var ControlGroupB = new ControlGroup(true).p2;
+var FunctionControl = new xmlPieceAp('FunctionControl').p;
+var FunctionControlB = new FunctionControl(true).p2;
 
 var xmlInfo = {
     databaseManager: {
@@ -60,20 +72,18 @@ var xmlInfo = {
         },
         controlGroup: {
             //command: xmlInfo.command[0],
-            areaGroupList: new xmlPiece(command[0],'AreaGroupList',"", true),
-            areaList: new xmlPiece(command[0],'AreaList',"", true),
-            mnetGroupList: new xmlPiece(command[0],'MnetGroupList',"", true),
-            mnetList: new xmlPiece(command[0],'MnetList',"", true),
-            ddcInfoList: "",
-            viewInfoList: "",
-            mcList: "",
-            mcNameList: "",
-            names: ['DdcInfoList','ViewInfoList','McList','McNameList']
+            areaGroupList: new ControlGroupB('AreaGroupList'),
+            areaList: new ControlGroupB('AreaList'),
+            mnetGroupList: new ControlGroupB('MnetGroupList'),
+            mnetList: new ControlGroupB('MnetList'),
+            ddcInfoList: new ControlGroupB('DdcInfoList'),
+            viewInfoList: new ControlGroupB('ViewInfoList'),
+            mcList: new ControlGroupB('McList'),
+            mcNameList: new ControlGroupB('McNameList'),
         },
         functionControl: {
             //command: xmlInfo.command[0],
-            functionList: "",
-            names: ['FunctionList']
+            functionList: new FunctionControlB('FunctionList')
         },
         userAuth: {
             //command: xmlInfo.command[0],
@@ -146,9 +156,9 @@ function createXml(command, element, close, attrObjArray) {
         if (close) { xmlOutput = xmlOutput + '>' + '<' }        ;
         for (var i = 0; i < attrObjArray.length; i++) {
             if (close) {
-                xmlOutput = xmlOutput + attrObjArray[i].name + ' />' + '</' + element + '>';
+                xmlOutput = xmlOutput + attrObjArray[i].name + '/>' + '</' + element + '>';
             } else {
-                xmlOutput = xmlOutput + ' ' + attrObjArray[i].name + '=' + '"' + attrObjArray[i].value + '"' + ' />';
+                xmlOutput = xmlOutput + ' ' + attrObjArray[i].name + '=' + '"' + attrObjArray[i].values + '"' + ' />';
             }            ;
 
         }        ;
@@ -156,14 +166,47 @@ function createXml(command, element, close, attrObjArray) {
         return xmlOutput;
     }
 };
+
+var sendXml = function (body) {
+    var postRequest = {
+        host: controllerAddress,
+        path: "/servlet/MIMEReceiveServlet",
+        port: controllerPort,
+        method: "POST",
+        headers: {
+            'Content-Type': 'text/xml',
+            'Content-Length': Buffer.byteLength(body)
+        }
+    };
+    var buffer = "";
+    
+    var req = http.request(postRequest, function (res) {
+        
+        console.log(res.statusCode);
+        var buffer = "";
+        res.on("data", function (data) { buffer = buffer + data; });
+        res.on("end", function (data) { console.log(buffer); });
+
+    });
+    
+    console.log(body);
+    req.write(body);
+    req.end();
+    console.log(buffer);
+};
+
 var xmlDbm = xmlInfo.databaseManager
 var xmlSysData = xmlDbm.systemData
 var xmlCtlGrp = xmlDbm.controlGroup
 // fetch data for use
-var getMnetGroupList = new createXml (xmlCtlGrp.mnetGroupList.command, "ControlGroup",xmlCtlGrp.mnetGroupList.close, [ { name: xmlCtlGrp.mnetGroupList.name, value: xmlCtlGrp.mnetGroupList.value}])
+function singleCommand(xmlCommand) {
+    this.xml = new createXml(xmlCommand.command, xmlCommand.parent , xmlCommand.close, [ { name: xmlCommand.name, values: xmlCommand.values }]).xml;
+};
+var xmlGetMnetGroupList = new singleCommand(xmlCtlGrp.mnetGroupList).xml;
+var xmlGetMnetList = new singleCommand(xmlCtlGrp.mnetList).xml;
 // code below is for testing purposes only
-var testXml = getMnetGroupList.xml()
-console.log(testXml)
+var testXml = getMnetGroupList();
+console.log(testXml);
 /*
 var body = '<?xml version="1.0" encoding="UTF-8"?>' +
             '<Packet>' +
@@ -175,33 +218,13 @@ var body = '<?xml version="1.0" encoding="UTF-8"?>' +
             '</DatabaseManager>' +
             '</Packet>';
 console.log(body)
-*/
-var body = testXml
-var postRequest = {
-    host: controllerAddress,
-    path: "/servlet/MIMEReceiveServlet",
-    port: controllerPort,
-    method: "POST",
-    headers: {
-        'Content-Type': 'text/xml',
-        'Content-Length': Buffer.byteLength(body)
-    }
-};
+ */
 
 console.log("Connecting to", controllerAddress + ":" + controllerPort);
 
-var buffer = "";
 
-var req = http.request(postRequest, function (res) {
-    
-    console.log(res.statusCode);
-    var buffer = "";
-    res.on("data", function (data) { buffer = buffer + data; });
-    res.on("end", function (data) { console.log(buffer); });
 
-});
-
-req.write(body);
-req.end();
-console.log(buffer);
- 
+console.log(xmlGetMnetGroupList());
+sendXml(xmlGetMnetGroupList());
+sendXml(xmlGetMnetList());
+ // */
