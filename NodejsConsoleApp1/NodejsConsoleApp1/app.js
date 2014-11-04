@@ -149,6 +149,7 @@ var xmlInfo = {
     names: ['Command','DatabaseManager']
 };
 
+//command to create the xml accepts command = <command>command</command> element = object under DatabaseManager close = does it contain attributes(false) or another element(true) attrObjArray = array of attributes to add
 function createXml(command, element, close, attrObjArray) {
     //create the XML for POST
     this.xml = function () {
@@ -168,6 +169,7 @@ function createXml(command, element, close, attrObjArray) {
     }
 };
 
+//command to send xml
 var sendXml = function (body) {
     var postRequest = {
         host: controllerAddress,
@@ -204,6 +206,7 @@ var xmlCtlGrp = xmlDbm.controlGroup
 function singleCommand(xmlCommand) {
     this.xml = new createXml(xmlCommand.command, xmlCommand.parent , xmlCommand.close, [ { name: xmlCommand.name, values: xmlCommand.values }]).xml;
 };
+//commands to create specific xml
 var xmlGetSystemData = new createXml(xmlSysData.version.command, xmlSysData.version.parent, xmlSysData.version.close, [xmlSysData.version,xmlSysData.tempUnit,xmlSysData.model,xmlSysData.filterSign,xmlSysData.shortName,xmlSysData.dateFormat]).xml;
 var xmlAreaGroupList = new singleCommand(xmlCtlGrp.areaGroupList).xml;
 var xmlAreaList = new singleCommand(xmlCtlGrp.areaList).xml;
@@ -214,14 +217,46 @@ var xmlGetViewInfoList = new singleCommand(xmlCtlGrp.viewInfoList).xml;
 var xmlGetMcList = new singleCommand(xmlCtlGrp.mcList).xml;
 var xmlGetMcNameList = new singleCommand(xmlCtlGrp.mcNameList).xml;
 
+//parse xml into an object where the object structure is main{name: "str" sub: {name: "str" sub: {name: "str" sub: {} parent: main.sub } parent:main }}
 var xmlParse = function(xmlToParse) {
     var xmlParseReturnObject = {};
-    var findTag = function () {
-        
+    var xmlParseTaskComplete = false
+    function findInXml(xmlSearchStartPoint, string, notString) {
+        var tagIndex = xmlToParse.indexOf(string, xmlSearchStartPoint);
+        if (xmlToParse.indexOf(notString, xmlSearchStartPoint) === tagIndex) {
+            if (tagIndex === (0 - 1)) {
+                return tagIndex
+            } else {
+                return tagIndex + 1
+            };
+        };
     };
-    for (var i = 0; i < xmlToParse.length; i++) {
-        xmlToParse[i]
+    var findTag = new findInXml(xmlSearchStartPoint, '<'),
+    var findGreaterThan = function (xmlSearchStartPoint) {
+        var tagIndex = xmlToParse.indexOf('>', xmlSearchStartPoint);
+        if (tagIndex === (0 - 1)) {
+            return tagIndex
+        } else {
+            return tagIndex + 1
+        };
     };
+    var findSpace = function (xmlSearchStartPoint) {
+        //find next space from starting point if none return 0
+        return xmlToParse.indexOf(' ',xmlSearchStartPoint)
+    };
+    var xmlTagFind = function (xmlSearchStartPoint) {
+        //find next xml attribute and return the tag string (not the less than symbol preceding it) if none return 0
+    };
+    var xmlAttrFind = function (xmlSearchStartPoint) {
+        // next xml attr if none return 0
+    };
+    while (xmlParseTaskComplete === false) {
+        // parse the xml
+        for (var i = 0; i < xmlToParse.length; i++) {
+            xmlTagFind(i);
+        }
+    };
+    
 
 }
 
