@@ -1,6 +1,7 @@
-﻿// © Copyright 2014
+// © Copyright 2014
 // the current code is licensed under the GPLv3 but future versions may carry a different license
 var http = require('http');
+var parseString = require('xml2js').parseString;
 
 //take args from command line
 var clargs = process.argv;
@@ -13,6 +14,12 @@ var groups // var for groups - used in xmlInfo
 var tempSetRaw //raw temp setting converted from fahrenheit - used in xmlInfo
 
 var xmlCommandOpt = ['getRequest','setRequest'];
+// xml parser
+var xmlParse = function (xmlToParse) {
+    parseString(xmlToParse, function (err, result) {
+        console.dir(result);
+    });
+};
 
 function xmlPiece(xmlCommand, parent, name, values, close) {
     this.command = xmlCommand;
@@ -171,6 +178,7 @@ function createXml(command, element, close, attrObjArray) {
 
 //command to send xml
 var sendXml = function (body) {
+    var response
     var postRequest = {
         host: controllerAddress,
         path: "/servlet/MIMEReceiveServlet",
@@ -182,26 +190,25 @@ var sendXml = function (body) {
         }
     };
     var buffer = "";
-    
     var req = http.request(postRequest, function (res) {
         
         console.log(res.statusCode);
         var buffer = "";
         res.on("data", function (data) { buffer = buffer + data; });
-        res.on("end", function (data) { console.log(buffer); });
-
+        res.on("end", function (data) { console.log(buffer); response = buffer; });
     });
     
     console.log(body);
     req.write(body);
     req.end();
-    console.log(buffer);
-    return buffer
+    console.log(response);
+    console.log(typeof response);
+    return xmlParse(buffer);
 };
 
-var xmlDbm = xmlInfo.databaseManager
-var xmlSysData = xmlDbm.systemData
-var xmlCtlGrp = xmlDbm.controlGroup
+var xmlDbm = xmlInfo.databaseManager;
+var xmlSysData = xmlDbm.systemData;
+var xmlCtlGrp = xmlDbm.controlGroup;
 // fetch data for use
 function singleCommand(xmlCommand) {
     this.xml = new createXml(xmlCommand.command, xmlCommand.parent , xmlCommand.close, [ { name: xmlCommand.name, values: xmlCommand.values }]).xml;
@@ -209,7 +216,7 @@ function singleCommand(xmlCommand) {
 //commands to create specific xml
 var xmlGetSystemData = new createXml(xmlSysData.version.command, xmlSysData.version.parent, xmlSysData.version.close, [xmlSysData.version,xmlSysData.tempUnit,xmlSysData.model,xmlSysData.filterSign,xmlSysData.shortName,xmlSysData.dateFormat]).xml;
 var xmlAreaGroupList = new singleCommand(xmlCtlGrp.areaGroupList).xml;
-var xmlAreaList = new singleCommand(xmlCtlGrp.areaList).xml;
+var xmlAreaList =  new singleCommand(xmlCtlGrp.areaList).xml;
 var xmlGetMnetGroupList = new singleCommand(xmlCtlGrp.mnetGroupList).xml;
 var xmlGetMnetList = new singleCommand(xmlCtlGrp.mnetList).xml;
 var xmlGetDdcInfoList = new singleCommand(xmlCtlGrp.ddcInfoList).xml;
@@ -217,53 +224,10 @@ var xmlGetViewInfoList = new singleCommand(xmlCtlGrp.viewInfoList).xml;
 var xmlGetMcList = new singleCommand(xmlCtlGrp.mcList).xml;
 var xmlGetMcNameList = new singleCommand(xmlCtlGrp.mcNameList).xml;
 
-//parse xml into an object where the object structure is main{name: "str" sub: {name: "str" sub: {name: "str" sub: {} parent: main.sub } parent:main }}
-var xmlParse = function(xmlToParse) {
-    var xmlParseReturnObject = {};
-    var xmlParseTaskComplete = false
-    function findInXml(xmlSearchStartPoint, string, notString) {
-        var tagIndex = xmlToParse.indexOf(string, xmlSearchStartPoint);
-        if (xmlToParse.indexOf(notString, xmlSearchStartPoint) === tagIndex) {
-            if (tagIndex === (0 - 1)) {
-                return tagIndex
-            } else {
-                return tagIndex + 1
-            };
-        };
-    };
-    var findTag = new findInXml(xmlSearchStartPoint, '<'),
-    var findGreaterThan = function (xmlSearchStartPoint) {
-        var tagIndex = xmlToParse.indexOf('>', xmlSearchStartPoint);
-        if (tagIndex === (0 - 1)) {
-            return tagIndex
-        } else {
-            return tagIndex + 1
-        };
-    };
-    var findSpace = function (xmlSearchStartPoint) {
-        //find next space from starting point if none return 0
-        return xmlToParse.indexOf(' ',xmlSearchStartPoint)
-    };
-    var xmlTagFind = function (xmlSearchStartPoint) {
-        //find next xml attribute and return the tag string (not the less than symbol preceding it) if none return 0
-    };
-    var xmlAttrFind = function (xmlSearchStartPoint) {
-        // next xml attr if none return 0
-    };
-    while (xmlParseTaskComplete === false) {
-        // parse the xml
-        for (var i = 0; i < xmlToParse.length; i++) {
-            xmlTagFind(i);
-        }
-    };
-    
-
-}
-
 var getSystemData = function () {
     var response = sendXml(xmlGetSystemData());
     // parse response
-    xmlParse(response);
+    console.log(response)
 };
 
 var getAreaGroupList = function () {
@@ -311,6 +275,9 @@ console.log("Connecting to", controllerAddress + ":" + controllerPort);
 
 // the following functions work but do not return anything yet
 getSystemData();
+
+/*
+
 getAreaGroupList();
 getAreaList();
 getMnetGroupList();
@@ -319,6 +286,6 @@ getDdcInfoList();
 getViewInfoList();
 getMcList();
 getMcNameList();
-
+*/
 
  // */
